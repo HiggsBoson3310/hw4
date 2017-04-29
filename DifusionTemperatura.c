@@ -21,8 +21,8 @@ int main(){
         g5 = fopen("Averages_forcing_open.dat","w");
         fixed_bound(f,g,0);
         fixed_bound(f1,g1,1);
-        period_bound(f2,g2,0);
         period_bound(f3,g3,1);
+        period_bound(f2,g2,0);
         open_bound(f4,g4,0);
         open_bound(f5,g5,1);
 	return 0;
@@ -104,6 +104,8 @@ void fixed_bound(FILE *f, FILE *g, int c){
         printf("Proceso de iteracion terminado, matrices generadas y guardadas");
 }
 void period_bound(FILE *f, FILE *g, int c){
+        FILE *gif;
+	gif = fopen("gif.txt","w");
         int y=0,x=0,n=0;
 	float dt, ds=0.01,a,v=0.0001,t=0,chi,m=0.0;
 	dt = (0.2*ds*ds)/v;
@@ -118,8 +120,14 @@ void period_bound(FILE *f, FILE *g, int c){
 	  for(x=0;x<sn;x++){
 	    if(19<x && x<41 && 44<y && y<56){surface[position(x,y,sn)]=100.0;}
 	    else{surface[position(x,y,sn)]=50.0;}
-	    if(x==(sn-1)){fprintf(f,"%f\n",surface[position(x,y,sn)]);}
-	    else{fprintf(f,"%f ",surface[position(x,y,sn)]);}
+	    if(x==(sn-1)){
+                fprintf(f,"%f\n",surface[position(x,y,sn)]);
+                fprintf(gif,"%f\n",surface[position(x,y,sn)]);
+            }
+	    else{
+                fprintf(f,"%f ",surface[position(x,y,sn)]);
+                fprintf(gif,"%f ",surface[position(x,y,sn)]);
+            }
             m+=surface[position(x,y,sn)]/(sn*sn);
 	  }
 	}
@@ -205,7 +213,15 @@ void period_bound(FILE *f, FILE *g, int c){
           }
           fprintf(g,"%f %f\n",t,m); 
           free(past);
-          
+          if((n%200)==0){
+            fprintf(gif,"t= %f\n",t);
+            for(y=0;y<sn;y++){
+                for(x=0;x<sn;x++){
+                    if(x==(sn-1)){fprintf(gif,"%f\n",surface[position(x,y,sn)]);}
+                    else{fprintf(gif,"%f ",surface[position(x,y,sn)]);}
+                }
+              }
+          }
 	  if (t==100){
               fprintf(f,"t=100\n");
               for(y=0;y<sn;y++){

@@ -222,8 +222,39 @@ plt.ylabel("Temperatura (C)")
 plt.xlabel("Tiempo (s)")
 plt.legend(loc=0)
 plt.savefig("Averages2.png")       
-        
-        
+#Esta parte es la que hace el gif del bono, corrase si y solo si se tiene el paquete imageio
+
+G = open('gif.txt','r').readlines()
+filenames = []
+S = []
+c=0
+for i in range(len(G)):
+    try:
+        line = np.array(G[i].split()).astype(float)
+        S.append(line)
+    except ValueError: 
+        c+=1
+        fig = plt.figure()
+        ax = fig.gca(projection='3d')
+        X = np.arange(0, 1, 0.01)
+        Y = np.arange(0, 1, 0.01)
+        X, Y = np.meshgrid(X, Y)
+        surf = ax.plot_surface(X, Y, S, cmap=cm.coolwarm,linewidth=0, antialiased=False)
+        ax.zaxis.set_major_locator(LinearLocator(10))
+        ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
+        #ax.set_zlim(50,100)
+        fig.colorbar(surf, shrink=0.5, aspect=5)
+        link = "g"+str(c)+".png"
+        filenames.append(link)
+        plt.savefig(link)
+        plt.close()
+        S=[]
+'''        
+import imageio
+images = []
+for filename in filenames:
+    images.append(imageio.imread(filename))
+imageio.mimsave('bono.gif', images)'''
         
         
         
