@@ -1,81 +1,357 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-
-/*float interationCalc(float *past, float *present, float *future)*/
-
+int position(int x, int y, int n);
+void fixed_bound(FILE *f, FILE *g, int c);
+void period_bound(FILE *f, FILE *g, int c);
+void open_bound(FILE *f, FILE *g, int c);
 int main(){
-	FILE *f1;
-	f1 = fopen("surface1.txt","w");
-	FILE *f2;
-	f2 = fopen("surface2.txt","w");
-	FILE *f3;
-	f3 = fopen("surface3.txt","w");
-	FILE *fg;
-	fg = fopen("surface_gif.txt","w");
-	int i = 0, j = 0, n = 0;	
-	float dt, ds = 0.01, a, v = 0.0001;
-        dt = (0.2*ds*ds)/v; 
-        a = dt/(ds*ds);
-        printf("Este es alpha*v %f y este dt %f\n",a*v,dt);
-	int tn = 100, sn = 1/ds;
-	float surface1[sn][sn];
-	float surface2[sn][sn];
-	float surface3[sn][sn];
-	fprintf(f1,"t=0\n");
-	fprintf(f2,"t=0\n");
-	fprintf(f3,"t=0\n");
-	fprintf(fg,"t=0\n");
-        printf("SUGHSDKDNF K EN FKERVKEFVD \n");
-	for (i=0;i<sn;i++){
-		for (j=0;j<sn;j++){
-			surface3[i][j] = 50.00;			
-			if(19<j && j<41 && 44<i && i<56){
-				surface1[i][j] = 100.00;
-				surface2[i][j] = 100.00;
-			}
-			else{
-				surface1[i][j] = 50.00;
-				surface2[i][j] = 50.00;
-				
-			}
-			if(j == (sn-1)){ 
-				fprintf(f1,"%f\n",surface1[i][j]);
-				fprintf(f2,"%f\n",surface2[i][j]);
-				fprintf(f3,"%f\n",surface3[i][j]);
-				fprintf(fg,"%f\n",surface1[i][j]);
-				
-			}
-			else {
-				fprintf(f1,"%f ",surface1[i][j]);
-				fprintf(f2,"%f ",surface2[i][j]);
-				fprintf(f3,"%f ",surface3[i][j]);
-				fprintf(fg,"%f ",surface1[i][j]);
-			}	
-		}
+	FILE *f,*g,*f1,*g1,*f2,*g2,*f3,*g3,*f4,*g4,*f5,*g5;
+	f = fopen("surface_no_forcing.txt","w");
+        g = fopen("Averages_no_forcing.dat","w");
+        f1 = fopen("surface_forcing.txt","w");
+        g1 = fopen("Averages_forcing.dat","w");
+        f2 = fopen("surface_no_forcing_periodic.txt","w");
+        g2 = fopen("Averages_no_forcing_periodic.dat","w");
+        f3 = fopen("surface_forcing_periodic.txt","w");
+        g3 = fopen("Averages_forcing_periodic.dat","w");
+        f4 = fopen("surface_no_forcing_open.txt","w");
+        g4 = fopen("Averages_no_forcing_open.dat","w");
+        f5 = fopen("surface_forcing_open.txt","w");
+        g5 = fopen("Averages_forcing_open.dat","w");
+        fixed_bound(f,g,0);
+        fixed_bound(f1,g1,1);
+        period_bound(f2,g2,0);
+        period_bound(f3,g3,1);
+        open_bound(f4,g4,0);
+        open_bound(f5,g5,1);
+	return 0;
+}
+int position(int x, int y, int n){
+	int z;
+	z = x+(n*y);
+	return z;
+}
+
+void fixed_bound(FILE *f, FILE *g, int c){
+        int y=0,x=0,n=0;
+	float dt, ds=0.01,a,v=0.0001,t=0,chi,m=0.0;
+	dt = (0.2*ds*ds)/v;
+	a = dt/(ds*ds);
+	chi = a*v;
+	printf("Este es alpha*nu: %f y este es dt %f\n",chi,dt);
+	int tn=2500/dt, sn=1/ds;
+	printf("Van a darse %d iteraciones en el tiempo y el cuadrado tendra %d columnas\n",tn,sn);
+	float *surface=malloc(sn*sn*sizeof(float));
+	printf("Inicializando Matriz \n");
+	for(y=0;y<sn;y++){
+	  for(x=0;x<sn;x++){
+	    if(19<x && x<41 && 44<y && y<56){surface[position(x,y,sn)]=100.0;}
+	    else{surface[position(x,y,sn)]=50.0;}
+	    if(x==(sn-1)){fprintf(f,"%f\n",surface[position(x,y,sn)]);}
+	    else{fprintf(f,"%f ",surface[position(x,y,sn)]);}
+            m+=surface[position(x,y,sn)]/(sn*sn);
+	  }
 	}
-
-	for (n=1; n<tn;n++){
-		float t = n*dt;
-		float past1[sn][sn];
-
-		for (i=0;i<sn;i++){
-			for (j=0;j<sn;j++){
-				past1[i][j] = surface1[i][j];
-			}
-		}
-
-
-		for (i=1;i<sn-1;i++){
-			for (j=1;j<sn-1;j++){
-                            
-				surface1[i][j] = (v*a)*past1[i+1][j]+(1-2*v*a)*past1[i][j]+(v*a)*past1[i-1][j]+(v*a)*past1[i][j+1]+(1-2*v*a)*past1[i][j];				
-			}
-		}
-		printf("%f\n",surface1[2][2]);
-		
-        }
-}		
-
-
-
+	fprintf(g,"%f %f\n",t,m); 
+	printf("Matriz incializada y guardada\n");
+	printf("Comenzando proceso de iteracion \n");
+	for(n=1;n<=tn;n++){
+          m=0;  
+	  t=n*dt;
+	  float *past=malloc(sn*sn*sizeof(float));
+	  for(x=0;x<sn;x++){
+	    for(y=0;y<sn;y++){
+	      past[position(x,y,sn)]=surface[position(x,y,sn)];
+	    }
+	  }
+	  for(x=1;x<(sn-1);x++){
+	    for(y=1;y<(sn-1);y++){
+              if(c==1){
+                if(19<x && x<41 && 44<y && y<56){surface[position(x,y,sn)]=100.0;}
+                else{surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(x-1,y,sn)];}  
+              }
+              else{
+                surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(x-1,y,sn)];
+              }
+                m+=surface[position(x,y,sn)]/(sn*sn);
+	    }
+          }
+          fprintf(g,"%f %f\n",t,m); 
+          free(past);
+          
+	  if (t==100){
+              fprintf(f,"t=100\n");
+              for(y=0;y<sn;y++){
+                for(x=0;x<sn;x++){
+                    if(x==(sn-1)){fprintf(f,"%f\n",surface[position(x,y,sn)]);}
+                    else{fprintf(f,"%f ",surface[position(x,y,sn)]);}
+                }
+              }
+          }
+          if (t==2500){
+              fprintf(f,"t=2500\n");
+              for(y=0;y<sn;y++){
+                for(x=0;x<sn;x++){
+                    if(x==(sn-1)){fprintf(f,"%f\n",surface[position(x,y,sn)]);}
+                    else{fprintf(f,"%f ",surface[position(x,y,sn)]);}
+                }
+              }
+          }
+          
+	}
+	fprintf(f,"ENDENDENDENDEND");
+        printf("Proceso de iteracion terminado, matrices generadas y guardadas");
+}
+void period_bound(FILE *f, FILE *g, int c){
+        int y=0,x=0,n=0;
+	float dt, ds=0.01,a,v=0.0001,t=0,chi,m=0.0;
+	dt = (0.2*ds*ds)/v;
+	a = dt/(ds*ds);
+	chi = a*v;
+	printf("Este es alpha*nu: %f y este es dt %f\n",chi,dt);
+	int tn=2500/dt, sn=1/ds;
+	printf("Van a darse %d iteraciones en el tiempo y el cuadrado tendra %d columnas\n",tn,sn);
+	float *surface=malloc(sn*sn*sizeof(float));
+	printf("Inicializando Matriz \n");
+	for(y=0;y<sn;y++){
+	  for(x=0;x<sn;x++){
+	    if(19<x && x<41 && 44<y && y<56){surface[position(x,y,sn)]=100.0;}
+	    else{surface[position(x,y,sn)]=50.0;}
+	    if(x==(sn-1)){fprintf(f,"%f\n",surface[position(x,y,sn)]);}
+	    else{fprintf(f,"%f ",surface[position(x,y,sn)]);}
+            m+=surface[position(x,y,sn)]/(sn*sn);
+	  }
+	}
+	fprintf(g,"%f %f\n",t,m); 
+	printf("Matriz incializada y guardada\n");
+	printf("Comenzando proceso de iteracion \n");
+	for(n=1;n<=tn;n++){
+          m=0;  
+	  t=n*dt;
+	  float *past=malloc(sn*sn*sizeof(float));
+	  for(x=0;x<sn;x++){
+	    for(y=0;y<sn;y++){
+	      past[position(x,y,sn)]=surface[position(x,y,sn)];
+	    }
+	  }
+	  for(x=0;x<(sn-1);x++){
+	    for(y=0;y<(sn-1);y++){
+              if(c==1){
+                if(19<x && x<41 && 44<y && y<56){surface[position(x,y,sn)]=100.0;}
+                else if(x==0){
+                    if(y==0){
+                        surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,sn-1,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(sn-1,y,sn)];
+                    }
+                    else if(y==sn-1){
+                        surface[position(x,y,sn)] = chi*past[position(x,0,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(sn-1,y,sn)];
+                    }
+                    else{
+                        surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(sn-1,y,sn)];
+                    }
+                }
+                else if(x==(sn-1)){
+                    if(y==0){
+                        surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,sn-1,sn)]+chi*past[position(0,y,sn)]+chi*past[position(x-1,y,sn)];
+                    }
+                    if(y==(sn-1)){
+                        surface[position(x,y,sn)] = chi*past[position(x,0,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(0,y,sn)]+chi*past[position(x-1,y,sn)];
+                    }
+                    else{
+                        surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(0,y,sn)]+chi*past[position(x-1,y,sn)];
+                    }
+                }
+                else if(y==0 && x!=0 && x!=(sn-1)){
+                    surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,sn-1,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(x-1,y,sn)];
+                }
+                else if(y==(sn-1) && x!=0 && x!=(sn-1)){
+                    surface[position(x,y,sn)] = chi*past[position(x,0,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(x-1,y,sn)];
+                }
+                else{surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(x-1,y,sn)];}  
+              }
+              else{
+                if(x==0){
+                    if(y==0){
+                        surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,sn-1,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(sn-1,y,sn)];
+                    }
+                    else if(y==sn-1){
+                        surface[position(x,y,sn)] = chi*past[position(x,0,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(sn-1,y,sn)];
+                    }
+                    else{
+                        surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(sn-1,y,sn)];
+                    }
+                }
+                else if(x==(sn-1)){
+                    if(y==0){
+                        surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,sn-1,sn)]+chi*past[position(0,y,sn)]+chi*past[position(x-1,y,sn)];
+                    }
+                    else if(y==(sn-1)){
+                        surface[position(x,y,sn)] = chi*past[position(x,0,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(0,y,sn)]+chi*past[position(x-1,y,sn)];
+                    }
+                    else{
+                        surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(0,y,sn)]+chi*past[position(x-1,y,sn)];
+                    }
+                }
+                else if(y==0 && x!=0 && x!=(sn-1)){
+                    surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,sn-1,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(x-1,y,sn)];
+                }
+                else if(y==(sn-1) && x!=0 && x!=(sn-1)){
+                    surface[position(x,y,sn)] = chi*past[position(x,0,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(x-1,y,sn)];
+                }
+                else{surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(x-1,y,sn)];}
+              }
+                m+=surface[position(x,y,sn)]/(sn*sn);
+	    }
+          }
+          fprintf(g,"%f %f\n",t,m); 
+          free(past);
+          
+	  if (t==100){
+              fprintf(f,"t=100\n");
+              for(y=0;y<sn;y++){
+                for(x=0;x<sn;x++){
+                    if(x==(sn-1)){fprintf(f,"%f\n",surface[position(x,y,sn)]);}
+                    else{fprintf(f,"%f ",surface[position(x,y,sn)]);}
+                }
+              }
+          }
+          if (t==2500){
+              fprintf(f,"t=2500\n");
+              for(y=0;y<sn;y++){
+                for(x=0;x<sn;x++){
+                    if(x==(sn-1)){fprintf(f,"%f\n",surface[position(x,y,sn)]);}
+                    else{fprintf(f,"%f ",surface[position(x,y,sn)]);}
+                }
+              }
+          }
+          
+	}
+	fprintf(f,"ENDENDENDENDEND");
+        printf("Proceso de iteracion terminado, matrices generadas y guardadas");
+}
+void open_bound(FILE *f, FILE *g, int c){
+        int y=0,x=0,n=0;
+	float dt, ds=0.01,a,v=0.0001,t=0,chi,m=0.0;
+	dt = (0.2*ds*ds)/v;
+	a = dt/(ds*ds);
+	chi = a*v;
+	printf("Este es alpha*nu: %f y este es dt %f\n",chi,dt);
+	int tn=2500/dt, sn=1/ds;
+	printf("Van a darse %d iteraciones en el tiempo y el cuadrado tendra %d columnas\n",tn,sn);
+	float *surface=malloc(sn*sn*sizeof(float));
+	printf("Inicializando Matriz \n");
+	for(y=0;y<sn;y++){
+	  for(x=0;x<sn;x++){
+	    if(19<x && x<41 && 44<y && y<56){surface[position(x,y,sn)]=100.0;}
+	    else{surface[position(x,y,sn)]=50.0;}
+	    if(x==(sn-1)){fprintf(f,"%f\n",surface[position(x,y,sn)]);}
+	    else{fprintf(f,"%f ",surface[position(x,y,sn)]);}
+            m+=surface[position(x,y,sn)]/(sn*sn);
+	  }
+	}
+	fprintf(g,"%f %f\n",t,m); 
+	printf("Matriz incializada y guardada\n");
+	printf("Comenzando proceso de iteracion \n");
+	for(n=1;n<=tn;n++){
+          m=0;  
+	  t=n*dt;
+	  float *past=malloc(sn*sn*sizeof(float));
+	  for(x=0;x<sn;x++){
+	    for(y=0;y<sn;y++){
+	      past[position(x,y,sn)]=surface[position(x,y,sn)];
+	    }
+	  }
+	  for(x=0;x<(sn-1);x++){
+	    for(y=0;y<(sn-1);y++){
+              if(c==1){
+                if(19<x && x<41 && 44<y && y<56){surface[position(x,y,sn)]=100.0;}
+                else if(x==0){
+                    if(y==0){
+                        surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(x,y,sn)];
+                    }
+                    else if(y==sn-1){
+                        surface[position(x,y,sn)] = chi*past[position(x,y,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(x,y,sn)];
+                    }
+                    else{
+                        surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(x,y,sn)];
+                    }
+                }
+                else if(x==(sn-1)){
+                    if(y==0){
+                        surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y,sn)]+chi*past[position(x,y,sn)]+chi*past[position(x-1,y,sn)];
+                    }
+                    if(y==(sn-1)){
+                        surface[position(x,y,sn)] = chi*past[position(x,y,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(x,y,sn)]+chi*past[position(x-1,y,sn)];
+                    }
+                    else{
+                        surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(x,y,sn)]+chi*past[position(x-1,y,sn)];
+                    }
+                }
+                else if(y==0 && x!=0 && x!=(sn-1)){
+                    surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(x-1,y,sn)];
+                }
+                else if(y==(sn-1) && x!=0 && x!=(sn-1)){
+                    surface[position(x,y,sn)] = chi*past[position(x,y,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(x-1,y,sn)];
+                }
+                else{surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(x-1,y,sn)];}  
+              }
+              else{
+                if(x==0){
+                    if(y==0){
+                        surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(x,y,sn)];
+                    }
+                    else if(y==sn-1){
+                        surface[position(x,y,sn)] = chi*past[position(x,y,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(x,y,sn)];
+                    }
+                    else{
+                        surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(x,y,sn)];
+                    }
+                }
+                else if(x==(sn-1)){
+                    if(y==0){
+                        surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y,sn)]+chi*past[position(x,y,sn)]+chi*past[position(x-1,y,sn)];
+                    }
+                    else if(y==(sn-1)){
+                        surface[position(x,y,sn)] = chi*past[position(x,y,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(x,y,sn)]+chi*past[position(x-1,y,sn)];
+                    }
+                    else{
+                        surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(x,y,sn)]+chi*past[position(x-1,y,sn)];
+                    }
+                }
+                else if(y==0 && x!=0 && x!=(sn-1)){
+                    surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(x-1,y,sn)];
+                }
+                else if(y==(sn-1) && x!=0 && x!=(sn-1)){
+                    surface[position(x,y,sn)] = chi*past[position(x,y,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(x-1,y,sn)];
+                }
+                else{surface[position(x,y,sn)] = chi*past[position(x,y+1,sn)]+(1-4*chi)*past[position(x,y,sn)]+chi*past[position(x,y-1,sn)]+chi*past[position(x+1,y,sn)]+chi*past[position(x-1,y,sn)];}
+              }
+                m+=surface[position(x,y,sn)]/(sn*sn);
+	    }
+          }
+          fprintf(g,"%f %f\n",t,m); 
+          free(past);
+          
+	  if (t==100){
+              fprintf(f,"t=100\n");
+              for(y=0;y<sn;y++){
+                for(x=0;x<sn;x++){
+                    if(x==(sn-1)){fprintf(f,"%f\n",surface[position(x,y,sn)]);}
+                    else{fprintf(f,"%f ",surface[position(x,y,sn)]);}
+                }
+              }
+          }
+          if (t==2500){
+              fprintf(f,"t=2500\n");
+              for(y=0;y<sn;y++){
+                for(x=0;x<sn;x++){
+                    if(x==(sn-1)){fprintf(f,"%f\n",surface[position(x,y,sn)]);}
+                    else{fprintf(f,"%f ",surface[position(x,y,sn)]);}
+                }
+              }
+          }
+          
+	}
+	fprintf(f,"ENDENDENDENDEND");
+        printf("Proceso de iteracion terminado, matrices generadas y guardadas");
+}

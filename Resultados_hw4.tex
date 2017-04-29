@@ -1,1 +1,64 @@
-%Este es el LaTeX del archivo de resultados
+\documentclass{article}
+\usepackage{graphicx}
+\begin{document}
+\section{Condici\'on no forzada}
+Primero veremos los resultados para la simulacion de la placa sin condici\'on de forzamiento. 
+\subsection{Condiciones Fijas}
+En primer lugar veamos lo que sucede al iniciar con condiciones de frontera fijas, es decir los bordes permanecer\'an siempre a 50 grados centigrados.\\
+\centerline{\includegraphics[scale=0.5]{surface_plot1.png}}
+Vemos entonces las condiciones inciales del cuadro centrado en Y y a 20 cm del borde en X a una temperatura de 100 grados. Vemos la clara discontinuidad en la temperatura que hay y esperamos que la curva se suavice a medida que pasa el tiempo.\\
+\centerline{\includegraphics[scale=0.5]{surface_plot2.png}}
+En el tiempo 100 observamos como es que la gr\'afica empieza a suavizarse y la temperatura va subiendo en los sectores mas cercanos al cuadro, mientras que en los sectores m\'as alejados la temepratura permanece inalterada. \\
+\centerline{\includegraphics[scale=0.5]{surface_plot3.png}}
+En el tiempo final vemos como es que la temepratura ha disminuido en gran medida y no hay discontinuidades. Vemos como es que la forma paraboloide de la temepratura se va ensanchando.\\  
+\subsection{Condiciones Periodicas}
+En primer lugar veamos lo que sucede al iniciar con condiciones de frontera periodicas, es decir los bordes se repiten.\\
+\centerline{\includegraphics[scale=0.5]{surface_plot7.png}}
+Vemos entonces las condiciones inciales del cuadro centrado en Y y a 20 cm del borde en X a una temperatura de 100 grados. Vemos la clara discontinuidad en la temperatura que hay y esperamos que la curva se suavice a medida que pasa el tiempo.\\
+\centerline{\includegraphics[scale=0.5]{surface_plot8.png}}
+En el tiempo 100 observamos como es que la gr\'afica empieza a suavizarse y la temperatura va subiendo en los sectores mas cercanos al cuadro, mientras que en los sectores m\'as alejados la temepratura permanece inalterada. Si bien se parece mucho a las condiciones fijas, vemos que la temperatura maxima es mucho mayor en este caso que en el anterior.\\
+\centerline{\includegraphics[scale=0.5]{surface_plot9.png}}
+En el tiempo final vemos como es que la temepratura ha disminuido en gran medida y no hay discontinuidades. Vemos como es que la forma paraboloide de la temepratura se va ensanchando. Aunque de nuevo la forma es similar al caso anterior la temepratura es un poco mayor y la forma en el borde es un tanto distinta.\\  
+\subsection{Condiciones Abiertas}
+En primer lugar veamos lo que sucede al iniciar con condiciones de frontera fijas, es decir los bordes  tendr\'an siempre gradiente cero\\
+\centerline{\includegraphics[scale=0.5]{surface_plot13.png}}
+Vemos entonces las condiciones inciales del cuadro centrado en Y y a 20 cm del borde en X a una temperatura de 100 grados. Vemos la clara discontinuidad en la temperatura que hay y esperamos que la curva se suavice a medida que pasa el tiempo.\\
+\centerline{\includegraphics[scale=0.5]{surface_plot14.png}}
+En el tiempo 100 observamos como es que la gr\'afica empieza a suavizarse y la temperatura va subiendo en los sectores mas cercanos al cuadro, aunque en parte de atras enmpieza a haber un aunmento en la temperatura que no habia antes.
+\centerline{\includegraphics[scale=0.5]{surface_plot15.png}}
+En el tiempo final vemos como es que la temepratura ha disminuido en gran medida y no hay discontinuidades. Vemos como es que la temperatura va aumentanto en la direccion de la esquina inferior.\\  
+\subsection{Promedios}
+Podemos ahora ver los promedios de temperatura en cada uno de los casos de condiciones de frontera:\\
+\centerline{\includegraphics[scale=0.5]{Averages1.png}}
+Observamos que efectivamente los datos se ajustan a nuestras observaciones.
+\section{Condici\'on forzada}
+Primero veremos los resultados para la simulacion de la placa sin condici\'on de forzamiento. 
+\subsection{Condiciones Fijas}
+En primer lugar veamos lo que sucede al iniciar con condiciones de frontera fijas, es decir los bordes permanecer\'an siempre a 50 grados centigrados.\\
+\centerline{\includegraphics[scale=0.5]{surface_plot4.png}}
+Vemos entonces las condiciones inciales del cuadro centrado en Y y a 20 cm del borde en X a una temperatura de 100 grados. Vemos la clara discontinuidad en la temperatura que hay y esperamos que la curva se suavice a medida que pasa el tiempo.\\
+\centerline{\includegraphics[scale=0.5]{surface_plot5.png}}
+En el tiempo 100 observamos como es que la gr\'afica empieza a suavizarse y la temperatura va subiendo en los sectores mas cercanos al cuadro, mientras que en los sectores m\'as alejados la temepratura permanece inalterada. Y si bien ya no hya discontinuidades hay una subida estrepitosa al rededor del cuadro caliente \\
+\centerline{\includegraphics[scale=0.5]{surface_plot6.png}}
+En el tiempo final vemos como es que la temepratura ha aumentado y no hay discontinuidades. Vemos como es que la temperatura al rededor del cuadro calinete no varia mucho mientras que la de los alrededores sube en gram medida.\\  
+\subsection{Condiciones Periodicas}
+En primer lugar veamos lo que sucede al iniciar con condiciones de frontera periodicas, es decir los bordes se repiten.\\
+\centerline{\includegraphics[scale=0.5]{surface_plot10.png}}
+Vemos entonces las condiciones inciales del cuadro centrado en Y y a 20 cm del borde en X a una temperatura de 100 grados. Vemos la clara discontinuidad en la temperatura que hay y esperamos que la curva se suavice a medida que pasa el tiempo.\\
+\centerline{\includegraphics[scale=0.5]{surface_plot11.png}}
+En el tiempo 100 observamos como es que la gr\'afica empieza a suavizarse y la temperatura va subiendo en los sectores mas cercanos al cuadro, mientras que en los sectores m\'as alejados la temepratura permanece inalterada. \\
+\centerline{\includegraphics[scale=0.5]{surface_plot12.png}}
+En el tiempo final vemos como es que la temepratura ha aumentado en gran medida y no hay discontinuidades. Vemos como es que la forma paraboloide de la temepratura se va ensanchando. De nuevo estos casos son muy similares a las condiciones fijas, sin empbargo las temperaturas son mas altas\\  
+\subsection{Condiciones Abiertas}
+En primer lugar veamos lo que sucede al iniciar con condiciones de frontera abiertas, es decir los bordes tienen gradiente cero.\\
+\centerline{\includegraphics[scale=0.5]{surface_plot16.png}}
+Vemos entonces las condiciones inciales del cuadro centrado en Y y a 20 cm del borde en X a una temperatura de 100 grados. Vemos la clara discontinuidad en la temperatura que hay y esperamos que la curva se suavice a medida que pasa el tiempo.\\
+\centerline{\includegraphics[scale=0.5]{surface_plot17.png}}
+En el tiempo 100 observamos como es que la gr\'afica empieza a suavizarse y la temperatura va subiendo en los sectores mas cercanos al cuadro. Al rededor del cuadro la temperatura empieza a subir de forma acelerada y los puntos mas cercanos suben en temperatura rapidamente \\
+\centerline{\includegraphics[scale=0.5]{surface_plot18.png}}
+En el tiempo final vemos como es que la temepratura ha aumentado y la mitad izquierda de la placa esta a una alta temperatura aunque hacia el origen estan mucho mas calientes.\\  
+\subsection{Promedios}
+Podemos ahora ver los promedios de temperatura en cada uno de los casos de condiciones de frontera:\\
+\centerline{\includegraphics[scale=0.5]{Averages2.png}}
+Observamos que efectivamente los datos se ajustan a nuestras observaciones.
+\end{document}
